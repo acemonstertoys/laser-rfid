@@ -15,7 +15,7 @@ and a 16x2 Character LCD like this one: https://www.sparkfun.com/products/791
 
 a generic 5v DPDT relay (used to disable the laser and lasercut license dongle)
 
-connected to this cheapo TP-Link router: http://www.amazon.com/TP-LINK-TL-WR703N-Portable-802-11n-Wireless/dp/B0083Z54P0
+connected to a cheapo TP-Link TL-WR703N router: http://www.amazon.com/TP-LINK-TL-WR703N-Portable-802-11n-Wireless/dp/B0083Z54P0
 
 
 TP-Link Router Configuration:
@@ -30,6 +30,8 @@ make image PROFILE=TLWR703 PACKAGES=base-files busybox dnsmasq dropbear firewall
 some other configuration changes were made to associate with the AMT network
 and to run the laser_boss.sh script upon startup and possibly add a package or
 two that i forgot about when running the image builder.
+
+As of _November 2016_, the TO-Link registers itself via DHCP onto either the 2Ghz wifi network or the Ethernet port.  It does not broadcast a hostname.  To configure the SSID or passowrd login in via SSH, and exit /etc/config/wireless.  The password is [XXXXXXXXXXredactedXXXXX].
 
 
 teensy configuration:
