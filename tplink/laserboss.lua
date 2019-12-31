@@ -37,28 +37,37 @@ function try(f, catch_f)
 	if not status then catch_f(exception) end
 end
 
-function update_keys()
-	local t = {}
-	local b, c = http.request{ url = "https://acemonstertoys.wpengine.com/wp-json/amt/v1/rfids/active",
-		headers = {["X-Amt-Auth"] = WP_KEY},
-		method = "GET",
-		redirect = true,
-		sink = ltn12.sink.table(t)
-		}
-	assert(c == 200, "Got " .. c .. " instead of 200")
-	assert(b == 1, "Got " .. b .. " instead of 1")
-	local json_str = table.concat(t)
-	assert(string.sub(json_str, 3, 4) == 'OK', "Got " .. json_str)
-	local outtbl = {}
-	local i = 0
-	for k in string.gmatch(string.sub(json_str, 5, -1), '\"(%w+)\"') do
-		outtbl[k] = true
-		i = i+1
-	end
-	assert(i > 0, "Got 0 keys")
-	logger("Updated active key list, " .. i .. " entries")
-	active_keys = outtbl
+function download_keys(extensionUrl)
+  local t = {}
+  local b, c = https.request{ url = BASE_RFID_URL .. extensionUrl,
+    method = "GET",
+    sink = ltn12.sink.table(t)
+    }
+
+  assert(c == 200, "Got " .. c .. " instead of 200")
+  assert(b == 1, "Got " .. b .. " instead of 1")
+  local json_str = table.concat(t)
+  assert(string.len(json_str) > 0, "Got empty string from rfids")
+
+  local outtbl = {}
+  local i = 0
+  for k in string.gmatch(string.sub(json_str, 5, -1), '(%w+)') do
+    outtbl[k] = true
+    -- also include short tags from new fob maker
+    outtbl[string.sub(k, 3, -1)] = true
+    i = i+1
+  end
+
+  assert(i > 0, "Got 0 keys")
+  return outtbl
 end
+
+function update_keys()
+  active_keys = download_keys(MEMBER_EXTENSION)
+  laser_keys = download_keys(LASER_EXTENSION)
+end
+
+update_keys()
 
 function submit_event(ts, evtype, userid, odo)
 	local t = {}
