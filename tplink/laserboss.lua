@@ -21,6 +21,7 @@ conn:commit()
 rs232 = require("luars232")
 
 -- socket library
+http = requrie("socket.http")
 https = require("ssl.https")
 ltn12 = require("ltn12")
 
@@ -66,8 +67,6 @@ function update_keys()
   active_keys = download_keys(MEMBER_EXTENSION)
   laser_keys = download_keys(LASER_EXTENSION)
 end
-
-update_keys()
 
 function submit_event(ts, evtype, userid, odo)
 	local t = {}
@@ -189,7 +188,11 @@ function display_active (odo_start, odo)
 end
 
 function is_valid_user(userid)
-	return (active_keys == nil or active_keys[userid] ~= nil)
+	return (laser_keys[userid] ~= nil)
+end
+
+function is_valid_member(userid)
+  return (active_keys[userid] ~= nil)
 end
 
 local isEnabled = false
@@ -259,8 +262,13 @@ while true do
 						os.execute("sleep 1")
 						odo_start = odo
 					else
-						logger("Attempted login from inactive fob: " .. user2)
-						display("Fob not active")
+            if is_valid_member(user2) then
+              logger("Attempted login from non certified member: " .. user2)
+              display("Not certified")
+            else
+						  logger("Attempted login from inactive fob: " .. user2)
+						  display("Fob not active")
+            end
 						set_enabled(false)
 						isEnabled = false
 						os.execute("sleep 5")
@@ -292,8 +300,13 @@ while true do
 					display("Welcome!")
 					os.execute("sleep 2")
 				else
-					logger("Attempted login from inactive fob: " .. user)
-					display("Fob not active")
+          if is_valid_member(user) then
+            logger("Attempted login from non certified member: " .. user)
+            display("Not certified")
+          else
+            logger("Attempted login from inactive fob: " .. user)
+					  display("Fob not active")
+          end
 					os.execute("sleep 5")
 				end
 			else
