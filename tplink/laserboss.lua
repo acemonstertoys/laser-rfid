@@ -7,6 +7,10 @@ COST_PER_MIN = 0.5
 USB_PATH = "/sys/bus/usb/devices/usb1/authorized"
 UPDATE_INTERVAL = 3600
 RETRY_INTERVAL = 300
+
+BASE_RFID_URL = "https://www.acemonstertoys.org/export/"
+LASER_EXTENSION = "laser/"
+MEMBER_EXTENSION = "rfids/"
 -- a file with LASER_KEY and WP_KEY API keys defined (not public)
 dofile("/root/key.lua")
 
